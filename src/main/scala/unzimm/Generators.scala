@@ -41,7 +41,7 @@ object Generators {
     def name = faker.Company.name
     val hierarchy = hierarchies(depth, minSalary, maxSalary).each
     Company(name, hierarchy)
-  }
+  }.retryUntil(_.name.length < 20)
 
   def simpleTrees(depth: Int, x: Int = 1): Gen[Tree] = monadic[Gen] {
     if (depth < 2) Tree(x) else {
