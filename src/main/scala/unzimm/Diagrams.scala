@@ -1,9 +1,12 @@
 package unzimm
 
-import monocle.Lens
+import monocle.{PLens, Lens}
 import org.scalacheck.Arbitrary
 import reftree._
 import zipper._
+
+import scala.language.higherKinds
+import scalaz.Functor
 
 object ZipperDiagrams {
   implicit def elideParent[A](implicit default: ToRefTree[Zipper[A]]): ToRefTree[Zipper[A]] =
@@ -11,6 +14,18 @@ object ZipperDiagrams {
 }
 
 object LensDiagrams {
+  val vowelLens = new PLens[String, String, Char, Char] {
+    def get(s: String): Char = ???
+    def set(b: Char): String ⇒ String = ???
+    def modifyF[F[_]: Functor](f: Char ⇒ F[Char])(s: String): F[String] = ???
+    def modify(f: Char ⇒ Char): String ⇒ String = { string ⇒
+      string map {
+        case v @ ('A' | 'E' | 'I' | 'O' | 'U' | 'a' | 'e' | 'i' | 'o' | 'u') => f(v)
+        case x => x
+      }
+    }
+  }
+
   trait Marker[A] {
     def mark(value: A): A
   }

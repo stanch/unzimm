@@ -24,7 +24,7 @@ object Generators {
     val num = Gen.choose(4, 8).each
     val team = Gen.listOfN(num, employees(remainder / num - 300, remainder / num + 300)).each
     Startup(name, ceo, team)
-  }
+  }.retryUntil(_.name.length < 20)
 
   implicit val arbitraryStartups: Arbitrary[Startup] = Arbitrary(startups())
 
