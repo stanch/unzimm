@@ -1,8 +1,9 @@
 ## Unzipping Immutability
 
 This repository contains the materials for the talk I gave at
-[LX Scala 2016](http://www.lxscala.com/schedule/#session-2). You can use it
-in two ways:
+[LX Scala 2016](http://www.lxscala.com/schedule/#session-2)
+([video](https://vimeo.com/162214356)).
+You can use it in two ways:
 
 * as a reference/refresher on the concepts covered in the talk;
 * as an interactive playground where you can try the same commands I presented.
@@ -452,10 +453,12 @@ assert(tree3a == tree3b)
   and/or [his PhD thesis](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf) — *the* introduction to immutable data structures
 * [What’s new in purely functional data structures since Okasaki](http://cstheory.stackexchange.com/a/1550) — an excellent StackExchange answer
   with pointers for further reading
+* [Extreme cleverness](https://www.youtube.com/watch?v=pNhBQJN44YQ) by Daniel Spiewak — a superb talk
+  covering several immutable data structures (implemented [here](https://github.com/djspiewak/extreme-cleverness))
 * [Huet’s original Zipper paper](https://www.st.cs.uni-saarland.de/edu/seminare/2005/advanced-fp/docs/huet-zipper.pdf) — a great short read
   introducing the Zipper
-* [“Extreme cleverness”](https://www.youtube.com/watch?v=pNhBQJN44YQ) by Daniel Spiewak — a superb talk
-  covering several immutable data structures (implemented [here](https://github.com/djspiewak/extreme-cleverness))
+* [Weaving a web](http://dspace.library.uu.nl/bitstream/handle/1874/2532/2001-33.pdf) by Hinze and Jeuring —
+  another interesting Zipper-like approach
 
 #### Scala libraries
 

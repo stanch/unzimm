@@ -1,8 +1,9 @@
 ## Unzipping Immutability
 
 This repository contains the materials for the talk I gave at
-[LX Scala 2016](http://www.lxscala.com/schedule/#session-2). You can use it
-in two ways:
+[LX Scala 2016](http://www.lxscala.com/schedule/#session-2)
+([video](https://vimeo.com/162214356)).
+You can use it in two ways:
 
 * as a reference/refresher on the concepts covered in the talk;
 * as an interactive playground where you can try the same commands I presented.
@@ -58,10 +59,10 @@ case class Employee(
 
 ```scala
 scala> val employee = employees.sample.get
-employee: unzimm.Data.Employee = Employee(Brandi,1007)
+employee: unzimm.Data.Employee = Employee(Janice,1180)
 
 scala> val raisedEmployee = employee.copy(salary = employee.salary + 10)
-raisedEmployee: unzimm.Data.Employee = Employee(Brandi,1017)
+raisedEmployee: unzimm.Data.Employee = Employee(Janice,1190)
 ```
 
 However once composition comes into play, the resulting nested immutable data structures
@@ -82,14 +83,14 @@ case class Startup(
 
 ```scala
 scala> val startup = startups.sample.get
-startup: unzimm.Data.Startup = Startup(Hickle-Wyman,Employee(Maybelle,3542),List(Employee(Khalid,1719), Employee(Jaylen,1509), Employee(Madelyn,1890), Employee(Danyka,1413)))
+startup: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3851),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
 
 scala> val raisedCeo = startup.copy(
      |   ceo = startup.ceo.copy(
      |     salary = startup.ceo.salary + 10
      |   )
      | )
-raisedCeo: unzimm.Data.Startup = Startup(Hickle-Wyman,Employee(Maybelle,3552),List(Employee(Khalid,1719), Employee(Jaylen,1509), Employee(Madelyn,1890), Employee(Danyka,1413)))
+raisedCeo: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3861),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
 ```
 
 ```scala
@@ -119,13 +120,13 @@ import monocle.macros.GenLens
 
 scala> val salaryLens = GenLens[Employee](_.salary)
 warning: there was one feature warning; re-run with -feature for details
-salaryLens: monocle.Lens[unzimm.Data.Employee,Long] = $anon$1@2ee1abab
+salaryLens: monocle.Lens[unzimm.Data.Employee,Long] = $anon$1@1ecd59ae
 
 scala> salaryLens.get(startup.ceo)
-res2: Long = 3542
+res2: Long = 3851
 
 scala> salaryLens.modify(s => s + 10)(startup.ceo)
-res3: unzimm.Data.Employee = Employee(Maybelle,3552)
+res3: unzimm.Data.Employee = Employee(Sheila,3861)
 ```
 
 ```scala
@@ -139,10 +140,10 @@ We can also define a lens that focuses on the startup’s CEO:
 ```scala
 scala> val ceoLens = GenLens[Startup](_.ceo)
 warning: there was one feature warning; re-run with -feature for details
-ceoLens: monocle.Lens[unzimm.Data.Startup,unzimm.Data.Employee] = $anon$1@4bf23e52
+ceoLens: monocle.Lens[unzimm.Data.Startup,unzimm.Data.Employee] = $anon$1@269bd723
 
 scala> ceoLens.get(startup)
-res5: unzimm.Data.Employee = Employee(Maybelle,3542)
+res5: unzimm.Data.Employee = Employee(Sheila,3851)
 ```
 
 ```scala
@@ -155,13 +156,13 @@ It’s not apparent yet how this would help, but the trick is that lenses can be
 
 ```scala
 scala> val ceoSalaryLens = ceoLens composeLens salaryLens
-ceoSalaryLens: monocle.PLens[unzimm.Data.Startup,unzimm.Data.Startup,Long,Long] = monocle.PLens$$anon$1@44b16027
+ceoSalaryLens: monocle.PLens[unzimm.Data.Startup,unzimm.Data.Startup,Long,Long] = monocle.PLens$$anon$1@1966b992
 
 scala> ceoSalaryLens.get(startup)
-res7: Long = 3542
+res7: Long = 3851
 
 scala> ceoSalaryLens.modify(s => s + 10)(startup)
-res8: unzimm.Data.Startup = Startup(Hickle-Wyman,Employee(Maybelle,3552),List(Employee(Khalid,1719), Employee(Jaylen,1509), Employee(Madelyn,1890), Employee(Danyka,1413)))
+res8: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3861),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
 ```
 
 ```scala
@@ -184,13 +185,13 @@ We can use it to give our CEO a funny name:
 ```scala
 scala> val employeeNameLens = GenLens[Employee](_.name)
 warning: there was one feature warning; re-run with -feature for details
-employeeNameLens: monocle.Lens[unzimm.Data.Employee,String] = $anon$1@5ac7a8aa
+employeeNameLens: monocle.Lens[unzimm.Data.Employee,String] = $anon$1@3fa8719
 
 scala> val ceoVowelLens = ceoLens composeLens employeeNameLens composeLens vowelLens
-ceoVowelLens: monocle.PLens[unzimm.Data.Startup,unzimm.Data.Startup,Char,Char] = monocle.PLens$$anon$1@669001fe
+ceoVowelLens: monocle.PLens[unzimm.Data.Startup,unzimm.Data.Startup,Char,Char] = monocle.PLens$$anon$1@6c1cbd62
 
 scala> ceoVowelLens.modify(v => v.toUpper)(startup)
-res11: unzimm.Data.Startup = Startup(Hickle-Wyman,Employee(MAybEllE,3542),List(Employee(Khalid,1719), Employee(Jaylen,1509), Employee(Madelyn,1890), Employee(Danyka,1413)))
+res11: unzimm.Data.Startup = Startup(Abbott Group,Employee(ShEIlA,3851),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
 ```
 
 ```scala
@@ -210,7 +211,7 @@ scala> import com.softwaremill.quicklens._
 import com.softwaremill.quicklens._
 
 scala> val raisedCeo = startup.modify(_.ceo.salary).using(s => s + 10)
-raisedCeo: unzimm.Data.Startup = Startup(Hickle-Wyman,Employee(Maybelle,3552),List(Employee(Khalid,1719), Employee(Jaylen,1509), Employee(Madelyn,1890), Employee(Danyka,1413)))
+raisedCeo: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3861),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
 ```
 
 You might think this is approaching the syntax for updating mutable data,
@@ -219,7 +220,7 @@ but actually we have already surpassed it, since lens are much more flexible:
 
 ```scala
 scala> val raisedEveryone = startup.modifyAll(_.ceo.salary, _.team.each.salary).using(s => s + 10)
-raisedEveryone: unzimm.Data.Startup = Startup(Hickle-Wyman,Employee(Maybelle,3552),List(Employee(Khalid,1729), Employee(Jaylen,1519), Employee(Madelyn,1900), Employee(Danyka,1423)))
+raisedEveryone: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3861),List(Employee(Guadalupe,1462), Employee(Nelson,1671), Employee(Marianna,1721), Employee(Rogelio,1564)))
 ```
 
 
@@ -479,10 +480,12 @@ assert(tree3a == tree3b)
   and/or [his PhD thesis](https://www.cs.cmu.edu/~rwh/theses/okasaki.pdf) — *the* introduction to immutable data structures
 * [What’s new in purely functional data structures since Okasaki](http://cstheory.stackexchange.com/a/1550) — an excellent StackExchange answer
   with pointers for further reading
+* [Extreme cleverness](https://www.youtube.com/watch?v=pNhBQJN44YQ) by Daniel Spiewak — a superb talk
+  covering several immutable data structures (implemented [here](https://github.com/djspiewak/extreme-cleverness))
 * [Huet’s original Zipper paper](https://www.st.cs.uni-saarland.de/edu/seminare/2005/advanced-fp/docs/huet-zipper.pdf) — a great short read
   introducing the Zipper
-* [“Extreme cleverness”](https://www.youtube.com/watch?v=pNhBQJN44YQ) by Daniel Spiewak — a superb talk
-  covering several immutable data structures (implemented [here](https://github.com/djspiewak/extreme-cleverness))
+* [Weaving a web](http://dspace.library.uu.nl/bitstream/handle/1874/2532/2001-33.pdf) by Hinze and Jeuring —
+  another interesting Zipper-like approach
 
 #### Scala libraries
 
