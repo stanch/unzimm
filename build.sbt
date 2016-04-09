@@ -4,6 +4,7 @@ scalaVersion := "2.11.7"
 
 resolvers ++= Seq(
   Resolver.bintrayRepo("stanch", "maven"),
+  Resolver.bintrayRepo("drdozer", "maven"),
   "justwrote" at "http://repo.justwrote.it/releases/"
 )
 
