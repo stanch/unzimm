@@ -1,37 +1,49 @@
 package unzimm
 
-import monocle.{PLens, Lens}
-import org.scalacheck.Arbitrary
+import monocle.Lens
 import reftree._
 import zipper._
 
-import scala.language.higherKinds
-import scalaz.Functor
-
 object ZipperDiagrams {
   implicit def elideParent[A](implicit default: ToRefTree[Zipper[A]]): ToRefTree[Zipper[A]] =
-    default.suppressField(2)
+    default.suppressField(3)
 }
 
 object LensDiagrams {
-  val vowelLens = new PLens[String, String, Char, Char] {
-    def get(s: String): Char = ???
-    def set(b: Char): String ⇒ String = ???
-    def modifyF[F[_]: Functor](f: Char ⇒ F[Char])(s: String): F[String] = ???
-    def modify(f: Char ⇒ Char): String ⇒ String = { string ⇒
-      string map {
-        case v @ ('A' | 'E' | 'I' | 'O' | 'U' | 'a' | 'e' | 'i' | 'o' | 'u') => f(v)
-        case x => x
-      }
-    }
+  trait Example[A] {
+    def exemplify: A
   }
 
+  object Example {
+    def apply[A](f: ⇒ A): Example[A] = new Example[A] {
+      def exemplify = f
+    }
+    implicit val `Int Example`: Example[Int] = Example[Int](42)
+    implicit val `Long Example`: Example[Long] = Example[Long](42)
+    implicit val `Char Example`: Example[Char] = Example[Char]('?')
+    implicit val `String Example`: Example[String] = Example[String]("specimen")
+
+    import shapeless._
+
+    implicit val `HNil Example`: Example[HNil] = Example[HNil](HNil)
+
+    implicit def `HCons Example`[H: Example, T <: HList: Example]: Example[H :: T] = Example[H :: T] {
+      implicitly[Example[H]].exemplify :: implicitly[Example[T]].exemplify
+    }
+
+    implicit def `Generic Example`[A, L <: HList](
+      implicit generic: Generic.Aux[A, L], hListExample: Lazy[Example[L]]
+    ): Example[A] = Example[A] {
+      generic.from(hListExample.value.exemplify)
+    }
+  }
+  
   trait Marker[A] {
     def mark(value: A): A
   }
 
   object Marker {
-    def apply[A](f: A ⇒ A) = new Marker[A] {
+    def apply[A](f: A ⇒ A): Marker[A] = new Marker[A] {
       def mark(value: A) = f(value)
     }
     implicit val `Int Marker` = Marker[Int](x ⇒ x + 1)
@@ -41,14 +53,14 @@ object LensDiagrams {
 
     import shapeless._
 
-    implicit def `HCons Marker`[H: Marker, T <: HList]: Marker[H :: T] = new Marker[H :: T] {
-      def mark(value: H :: T) = implicitly[Marker[H]].mark(value.head) :: value.tail
+    implicit def `HCons Marker`[H: Marker, T <: HList]: Marker[H :: T] = Marker[H :: T] {
+      case h :: t ⇒ implicitly[Marker[H]].mark(h) :: t
     }
 
     implicit def `Generic Marker`[A, L <: HList](
       implicit generic: Generic.Aux[A, L], hListMarker: Lazy[Marker[L]]
-    ): Marker[A] = new Marker[A] {
-      def mark(value: A) = generic.from(hListMarker.value.mark(generic.to(value)))
+    ): Marker[A] = Marker[A] { value ⇒
+      generic.from(hListMarker.value.mark(generic.to(value)))
     }
   }
 
@@ -66,17 +78,17 @@ object LensDiagrams {
   // dogfooding is strong with this one:
   // we use a Zipper to provide a RefTree instance for Lens
   implicit def `Lens RefTree`[A, B](
-    implicit arbitraryA: Arbitrary[A], refTreeA: ToRefTree[A],
-    arbitraryB: Arbitrary[B], refTreeB: ToRefTree[B],
+    implicit exampleA: Example[A], refTreeA: ToRefTree[A],
+    exampleB: Example[B], refTreeB: ToRefTree[B],
     marker: Marker[B]
   ): ToRefTree[Lens[A, B]] = new ToRefTree[Lens[A, B]] {
     def refTree(value: Lens[A, B]): RefTree = {
       // obtain a random value of type A
-      val before = arbitraryA.arbitrary.sample.get
+      val before = exampleA.exemplify
       // modify it using the lens and the marker function
       val after = value.modify(marker.mark)(before)
       // an example RefTree for type B used to detect similar RefTrees
-      val example = arbitraryB.arbitrary.sample.get.refTree
+      val example = exampleB.exemplify.refTree
       // compare the RefTrees before and after modification
       iterate(Zipper(before.refTree), Zipper(after.refTree), example)
     }

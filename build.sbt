@@ -8,8 +8,8 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.stanch" %% "reftree" % "0.2.0",
-  "org.stanch" %% "zipper" % "0.1.0",
+  "org.stanch" %% "reftree" % "0.3.0",
+  "org.stanch" %% "zipper" % "0.2.0",
   "com.github.julien-truffaut" %% "monocle-macro" % "1.2.0",
   "com.softwaremill.quicklens" %% "quicklens" % "1.4.6",
   "it.justwrote" %% "scala-faker" % "0.3",
@@ -25,7 +25,9 @@ val predef = Seq(
   "import reftree._, zipper._, unzimm._",
   "import Data._, Generators._, LensDiagrams._",
   "import com.softwaremill.quicklens._, monocle.Lens, monocle.macros.GenLens",
-  "val defaultPlotter = DotPlotter(); import defaultPlotter.plot"
+  "import scala.collection.immutable._",
+  "import java.nio.file.Paths",
+  "val defaultDiagram = Diagram(); import defaultDiagram.show"
 ).mkString(";")
 
 initialCommands in (Test, console) := s"""ammonite.repl.Main.run("$predef"); System.exit(0)"""
