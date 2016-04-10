@@ -9,7 +9,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.stanch" %% "reftree" % "0.3.0",
+  "org.stanch" %% "reftree" % "0.3.1",
   "org.stanch" %% "zipper" % "0.2.0",
   "com.github.julien-truffaut" %% "monocle-macro" % "1.2.0",
   "com.softwaremill.quicklens" %% "quicklens" % "1.4.6",
