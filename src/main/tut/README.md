@@ -118,7 +118,7 @@ salaryLens.modify(s => s + 10)(startup.ceo)
 ```
 
 ```tut:silent
-Diagram(path.resolve("salaryLens.png")).show(salaryLens)
+Diagram(path.resolve("salaryLens.png")).show(salaryLens → startup.ceo)
 ```
 
 <p align="center"><img src="images/lens/salaryLens.png" width="40%" /></p>
@@ -132,7 +132,7 @@ ceoLens.get(startup)
 ```
 
 ```tut:silent
-Diagram(path.resolve("ceoLens.png")).show(ceoLens)
+Diagram(path.resolve("ceoLens.png")).show(ceoLens → startup)
 ```
 
 <p align="center"><img src="images/lens/ceoLens.png" width="100%" /></p>
@@ -147,7 +147,7 @@ ceoSalaryLens.modify(s => s + 10)(startup)
 ```
 
 ```tut:silent
-Diagram(path.resolve("ceoSalaryLens.png")).show(ceoSalaryLens)
+Diagram(path.resolve("ceoSalaryLens.png")).show(ceoSalaryLens → startup)
 ```
 
 <p align="center"><img src="images/lens/ceoSalaryLens.png" width="100%" /></p>
@@ -171,7 +171,7 @@ ceoVowelLens.modify(v => v.toUpper)(startup)
 ```
 
 ```tut:silent
-Diagram(path.resolve("ceoVowelLens.png")).show(ceoVowelLens)
+Diagram(path.resolve("ceoVowelLens.png")).show(ceoVowelLens → startup)
 ```
 
 <p align="center"><img src="images/lens/ceoVowelLens.png" width="100%" /></p>

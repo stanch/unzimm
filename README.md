@@ -59,10 +59,10 @@ case class Employee(
 
 ```scala
 scala> val employee = employees.sample.get
-employee: unzimm.Data.Employee = Employee(Janice,1180)
+employee: unzimm.Data.Employee = Employee(Rocky,1957)
 
 scala> val raisedEmployee = employee.copy(salary = employee.salary + 10)
-raisedEmployee: unzimm.Data.Employee = Employee(Janice,1190)
+raisedEmployee: unzimm.Data.Employee = Employee(Rocky,1967)
 ```
 
 However once composition comes into play, the resulting nested immutable data structures
@@ -83,14 +83,14 @@ case class Startup(
 
 ```scala
 scala> val startup = startups.sample.get
-startup: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3851),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
+startup: unzimm.Data.Startup = Startup(Hoppe-Prohaska,Employee(Brooke,4381),List(Employee(Teagan,1234), Employee(Ursula,1696), Employee(Dorothy,1671), Employee(Marc,1331)))
 
 scala> val raisedCeo = startup.copy(
      |   ceo = startup.ceo.copy(
      |     salary = startup.ceo.salary + 10
      |   )
      | )
-raisedCeo: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3861),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
+raisedCeo: unzimm.Data.Startup = Startup(Hoppe-Prohaska,Employee(Brooke,4391),List(Employee(Teagan,1234), Employee(Ursula,1696), Employee(Dorothy,1671), Employee(Marc,1331)))
 ```
 
 ```scala
@@ -120,17 +120,17 @@ import monocle.macros.GenLens
 
 scala> val salaryLens = GenLens[Employee](_.salary)
 warning: there was one feature warning; re-run with -feature for details
-salaryLens: monocle.Lens[unzimm.Data.Employee,Long] = $anon$1@1ecd59ae
+salaryLens: monocle.Lens[unzimm.Data.Employee,Long] = $anon$1@21e8d579
 
 scala> salaryLens.get(startup.ceo)
-res2: Long = 3851
+res2: Long = 4381
 
 scala> salaryLens.modify(s => s + 10)(startup.ceo)
-res3: unzimm.Data.Employee = Employee(Sheila,3861)
+res3: unzimm.Data.Employee = Employee(Brooke,4391)
 ```
 
 ```scala
-Diagram(path.resolve("salaryLens.png")).show(salaryLens)
+Diagram(path.resolve("salaryLens.png")).show(salaryLens → startup.ceo)
 ```
 
 <p align="center"><img src="images/lens/salaryLens.png" width="40%" /></p>
@@ -140,14 +140,14 @@ We can also define a lens that focuses on the startup’s CEO:
 ```scala
 scala> val ceoLens = GenLens[Startup](_.ceo)
 warning: there was one feature warning; re-run with -feature for details
-ceoLens: monocle.Lens[unzimm.Data.Startup,unzimm.Data.Employee] = $anon$1@269bd723
+ceoLens: monocle.Lens[unzimm.Data.Startup,unzimm.Data.Employee] = $anon$1@2790256
 
 scala> ceoLens.get(startup)
-res5: unzimm.Data.Employee = Employee(Sheila,3851)
+res5: unzimm.Data.Employee = Employee(Brooke,4381)
 ```
 
 ```scala
-Diagram(path.resolve("ceoLens.png")).show(ceoLens)
+Diagram(path.resolve("ceoLens.png")).show(ceoLens → startup)
 ```
 
 <p align="center"><img src="images/lens/ceoLens.png" width="100%" /></p>
@@ -156,17 +156,17 @@ It’s not apparent yet how this would help, but the trick is that lenses can be
 
 ```scala
 scala> val ceoSalaryLens = ceoLens composeLens salaryLens
-ceoSalaryLens: monocle.PLens[unzimm.Data.Startup,unzimm.Data.Startup,Long,Long] = monocle.PLens$$anon$1@1966b992
+ceoSalaryLens: monocle.PLens[unzimm.Data.Startup,unzimm.Data.Startup,Long,Long] = monocle.PLens$$anon$1@8c708f1
 
 scala> ceoSalaryLens.get(startup)
-res7: Long = 3851
+res7: Long = 4381
 
 scala> ceoSalaryLens.modify(s => s + 10)(startup)
-res8: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3861),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
+res8: unzimm.Data.Startup = Startup(Hoppe-Prohaska,Employee(Brooke,4391),List(Employee(Teagan,1234), Employee(Ursula,1696), Employee(Dorothy,1671), Employee(Marc,1331)))
 ```
 
 ```scala
-Diagram(path.resolve("ceoSalaryLens.png")).show(ceoSalaryLens)
+Diagram(path.resolve("ceoSalaryLens.png")).show(ceoSalaryLens → startup)
 ```
 
 <p align="center"><img src="images/lens/ceoSalaryLens.png" width="100%" /></p>
@@ -185,17 +185,17 @@ We can use it to give our CEO a funny name:
 ```scala
 scala> val employeeNameLens = GenLens[Employee](_.name)
 warning: there was one feature warning; re-run with -feature for details
-employeeNameLens: monocle.Lens[unzimm.Data.Employee,String] = $anon$1@3fa8719
+employeeNameLens: monocle.Lens[unzimm.Data.Employee,String] = $anon$1@7c0c3aea
 
 scala> val ceoVowelLens = ceoLens composeLens employeeNameLens composeLens vowelLens
-ceoVowelLens: monocle.PLens[unzimm.Data.Startup,unzimm.Data.Startup,Char,Char] = monocle.PLens$$anon$1@6c1cbd62
+ceoVowelLens: monocle.PLens[unzimm.Data.Startup,unzimm.Data.Startup,Char,Char] = monocle.PLens$$anon$1@2a781ab9
 
 scala> ceoVowelLens.modify(v => v.toUpper)(startup)
-res11: unzimm.Data.Startup = Startup(Abbott Group,Employee(ShEIlA,3851),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
+res11: unzimm.Data.Startup = Startup(Hoppe-Prohaska,Employee(BrOOkE,4381),List(Employee(Teagan,1234), Employee(Ursula,1696), Employee(Dorothy,1671), Employee(Marc,1331)))
 ```
 
 ```scala
-Diagram(path.resolve("ceoVowelLens.png")).show(ceoVowelLens)
+Diagram(path.resolve("ceoVowelLens.png")).show(ceoVowelLens → startup)
 ```
 
 <p align="center"><img src="images/lens/ceoVowelLens.png" width="100%" /></p>
@@ -211,7 +211,7 @@ scala> import com.softwaremill.quicklens._
 import com.softwaremill.quicklens._
 
 scala> val raisedCeo = startup.modify(_.ceo.salary).using(s => s + 10)
-raisedCeo: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3861),List(Employee(Guadalupe,1452), Employee(Nelson,1661), Employee(Marianna,1711), Employee(Rogelio,1554)))
+raisedCeo: unzimm.Data.Startup = Startup(Hoppe-Prohaska,Employee(Brooke,4391),List(Employee(Teagan,1234), Employee(Ursula,1696), Employee(Dorothy,1671), Employee(Marc,1331)))
 ```
 
 You might think this is approaching the syntax for updating mutable data,
@@ -220,7 +220,7 @@ but actually we have already surpassed it, since lens are much more flexible:
 
 ```scala
 scala> val raisedEveryone = startup.modifyAll(_.ceo.salary, _.team.each.salary).using(s => s + 10)
-raisedEveryone: unzimm.Data.Startup = Startup(Abbott Group,Employee(Sheila,3861),List(Employee(Guadalupe,1462), Employee(Nelson,1671), Employee(Marianna,1721), Employee(Rogelio,1564)))
+raisedEveryone: unzimm.Data.Startup = Startup(Hoppe-Prohaska,Employee(Brooke,4391),List(Employee(Teagan,1244), Employee(Ursula,1706), Employee(Dorothy,1681), Employee(Marc,1341)))
 ```
 
 

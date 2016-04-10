@@ -1,7 +1,6 @@
 package unzimm
 
 import org.scalacheck.Gen
-import unzimm.LensDiagrams.Example
 import scalaz.scalacheck.ScalaCheckBinding._
 import com.thoughtworks.each.Monadic._
 import Data._
@@ -15,8 +14,6 @@ object Generators {
 
   val employees = employeeGen()
 
-  implicit val employeeExample = Example(employees.sample.get)
-
   def startupGen(revenue: Long = 10000L): Gen[Startup] = monadic[Gen] {
     def name = faker.Company.name
     val ceo = employeeGen(revenue / 3, revenue / 2).each
@@ -27,8 +24,6 @@ object Generators {
   }.retryUntil(_.name.length < 20)
 
   val startups = startupGen()
-
-  implicit val startupExample = Example(startups.sample.get)
 
   def hierarchyGen(depth: Int, minSalary: Long = 1000L, maxSalary: Long = 2000): Gen[Hierarchy] = monadic[Gen] {
     val boss = employeeGen(minSalary, maxSalary).each

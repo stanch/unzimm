@@ -15,7 +15,7 @@ object LensDiagrams {
   }
 
   object Example {
-    def apply[A](f: ⇒ A): Example[A] = new Example[A] {
+    def apply[A](f: A): Example[A] = new Example[A] {
       def exemplify = f
     }
     implicit val `Int Example`: Example[Int] = Example[Int](42)
@@ -75,30 +75,37 @@ object LensDiagrams {
     }
   }
 
-  // dogfooding is strong with this one:
-  // we use a Zipper to provide a RefTree instance for Lens
   implicit def `Lens RefTree`[A, B](
     implicit exampleA: Example[A], refTreeA: ToRefTree[A],
     exampleB: Example[B], refTreeB: ToRefTree[B],
     marker: Marker[B]
   ): ToRefTree[Lens[A, B]] = new ToRefTree[Lens[A, B]] {
-    def refTree(value: Lens[A, B]): RefTree = {
-      // obtain a random value of type A
-      val before = exampleA.exemplify
-      // modify it using the lens and the marker function
-      val after = value.modify(marker.mark)(before)
-      // an example RefTree for type B used to detect similar RefTrees
-      val example = exampleB.exemplify.refTree
-      // compare the RefTrees before and after modification
-      iterate(Zipper(before.refTree), Zipper(after.refTree), example)
-    }
+    def refTree(value: Lens[A, B]): RefTree = lensRefTree(value, exampleA.exemplify)
+  }
 
+  implicit def `Lens+target RefTree`[A, B](
+    implicit refTreeA: ToRefTree[A],
+    exampleB: Example[B], refTreeB: ToRefTree[B],
+    marker: Marker[B]
+  ): ToRefTree[(Lens[A, B], A)] = new ToRefTree[(Lens[A, B], A)] {
+    def refTree(value: (Lens[A, B], A)): RefTree = lensRefTree(value._1, value._2)
+  }
+
+  // dogfooding is strong with this one:
+  // we use a Zipper to provide a RefTree instance for Lens
+  def lensRefTree[A, B](lens: Lens[A, B], target: A)(
+    implicit refTreeA: ToRefTree[A],
+    exampleB: Example[B], refTreeB: ToRefTree[B], marker: Marker[B]
+  ) = {
+    // next node in the tree
     def next[T](zipper: Zipper[T]): Zipper.MoveResult[T] =
       zipper.tryMoveRight.orElse(_.tryMoveUp.flatMap(next))
 
+    // first child node (if any), or next node in the tree
     def childOrNext[T](zipper: Zipper[T]): Zipper.MoveResult[T] =
       zipper.tryMoveDownLeft.orElse(next)
 
+    // go through the original and the modified trees and highlight the differences
     def iterate(zipper1: Zipper[RefTree], zipper2: Zipper[RefTree], example: RefTree): RefTree = {
       def iterateOrCommit(updated: Zipper[RefTree], move: Zipper.Move[RefTree]) =
         (move(updated), move(zipper2)) match {
@@ -120,5 +127,12 @@ object LensDiagrams {
           iterateOrCommit(zipper1, childOrNext)
       }
     }
+
+    // modify the target using the lens and the marker function
+    val modified = lens.modify(marker.mark)(target)
+    // an example RefTree for type B used to detect similar RefTrees
+    val example = exampleB.exemplify.refTree
+    // compare the RefTrees before and after modification
+    iterate(Zipper(target.refTree), Zipper(modified.refTree), example)
   }
 }
