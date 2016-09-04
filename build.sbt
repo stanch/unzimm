@@ -1,6 +1,6 @@
 name := "unzimm"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 resolvers ++= Seq(
   Resolver.bintrayRepo("stanch", "maven"),
@@ -11,15 +11,15 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "org.stanch" %% "reftree" % "0.3.1",
   "org.stanch" %% "zipper" % "0.2.0",
-  "com.github.julien-truffaut" %% "monocle-macro" % "1.2.0",
-  "com.softwaremill.quicklens" %% "quicklens" % "1.4.6",
+  "com.github.julien-truffaut" %% "monocle-macro" % "1.2.2",
+  "com.softwaremill.quicklens" %% "quicklens" % "1.4.7",
   "it.justwrote" %% "scala-faker" % "0.3",
   "org.scalacheck" %% "scalacheck" % "1.12.5",
-  "org.scalaz" %% "scalaz-scalacheck-binding" % "7.2.0",
-  "com.thoughtworks.each" %% "each" % "0.5.1",
+  "org.scalaz" %% "scalaz-scalacheck-binding" % "7.2.5",
+  "com.thoughtworks.each" %% "each" % "0.6.0",
   "com.chuusai" %% "shapeless" % "2.2.5",
-  "org.scalatest" %% "scalatest" % "2.2.6" % Test,
-  "com.lihaoyi" % "ammonite-repl" % "0.5.4" % Test cross CrossVersion.full
+  "org.scalatest" %% "scalatest" % "3.0.0" % Test,
+  "com.lihaoyi" % "ammonite" % "0.7.6" % Test cross CrossVersion.full
 )
 
 val predef = Seq(
@@ -31,7 +31,7 @@ val predef = Seq(
   "val defaultDiagram = Diagram(); import defaultDiagram.show"
 ).mkString(";")
 
-initialCommands in (Test, console) := s"""ammonite.repl.Main.run("$predef"); System.exit(0)"""
+initialCommands in (Test, console) := s"""ammonite.Main("$predef").run(); System.exit(0)"""
 
 addCommandAlias("amm", "test:console")
 
